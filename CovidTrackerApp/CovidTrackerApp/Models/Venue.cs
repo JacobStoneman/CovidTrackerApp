@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -8,7 +9,12 @@ namespace CovidTrackerApp.Models
 	public class Venue
 	{
 		public int VenueId { get; set; }
+		[Required]
+		[Display(Name = "Name")]
+		[RegularExpression(@"^[A-Z]+[a-zA-Z' ']*$")]
 		public string VenueName { get; set; }
+		[Required]
+		[RegularExpression(@"^[0-9A-Za-z' ',]*$")]
 		public string Address { get; set; }
 		public int Capacity { get; set; }
 		public int NumOfPatients { get; set; }

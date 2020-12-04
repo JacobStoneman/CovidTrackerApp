@@ -10,7 +10,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using CovidTrackerApp.Data;
-using CovidTrackerApp.Services;
 
 namespace CovidTrackerApp
 {
@@ -30,11 +29,10 @@ namespace CovidTrackerApp
 			_connectionString = Configuration["CovidTrackerApp:ConnectionStrings"];
 			
 			services.AddControllersWithViews();
+			
 
 		    services.AddDbContext<CovidTrackerAppContext>(options =>
 		            options.UseSqlServer(_connectionString));
-
-			services.AddScoped<IVenueService, VenueService>();
 		}
 
 		
