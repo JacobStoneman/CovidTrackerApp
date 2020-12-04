@@ -10,6 +10,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using CovidTrackerApp.Data;
+using CovidTrackerApp.Interfaces;
+using CovidTrackerApp.Services;
 
 namespace CovidTrackerApp
 {
@@ -29,9 +31,11 @@ namespace CovidTrackerApp
 			_connectionString = Configuration["CovidTrackerApp:ConnectionStrings"];
 			
 			services.AddControllersWithViews();
+			
 
 		    services.AddDbContext<CovidTrackerAppContext>(options =>
 		            options.UseSqlServer(_connectionString));
+			services.AddScoped<IPatientService, PatientService>();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
