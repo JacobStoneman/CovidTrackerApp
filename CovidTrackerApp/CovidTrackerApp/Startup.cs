@@ -27,7 +27,7 @@ namespace CovidTrackerApp
 		public void ConfigureServices(IServiceCollection services)
 		{
 			_connectionString = Configuration["CovidTrackerApp:ConnectionStrings"];
-
+			
 			services.AddControllersWithViews();
 
 		    services.AddDbContext<CovidTrackerAppContext>(options =>
