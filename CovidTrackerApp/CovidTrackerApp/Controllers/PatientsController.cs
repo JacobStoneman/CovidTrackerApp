@@ -7,23 +7,25 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CovidTrackerApp.Data;
 using CovidTrackerApp.Models;
+using CovidTrackerApp.Services;
+using CovidTrackerApp.Interfaces;
+
 
 namespace CovidTrackerApp.Controllers
 {
     public class PatientsController : Controller
     {
-        private readonly CovidTrackerAppContext _context;
+        private readonly IPatientService _service;
 
-        public PatientsController(CovidTrackerAppContext context)
+        public PatientsController(IPatientService service)
         {
-            _context = context;
+            _service = service;
         }
 
         // GET: Patients
         public async Task<IActionResult> Index()
         {
-            var covidTrackerAppContext = _context.Patient.Include(p => p.Venue);
-            return View(await covidTrackerAppContext.ToListAsync());
+            return View(await _service.RetrievePatientListAsync());
         }
 
         // GET: Patients/Details/5
@@ -34,9 +36,7 @@ namespace CovidTrackerApp.Controllers
                 return NotFound();
             }
 
-            var patient = await _context.Patient
-                .Include(p => p.Venue)
-                .FirstOrDefaultAsync(m => m.PatientId == id);
+            var patient = await _service.RetrievePatientById(id);
             if (patient == null)
             {
                 return NotFound();
@@ -48,7 +48,7 @@ namespace CovidTrackerApp.Controllers
         // GET: Patients/Create
         public IActionResult Create()
         {
-            ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueId");
+            ViewData["VenueId"] = new SelectList(_service.RetrieveVenues(), "VenueId", "VenueId");
             return View();
         }
 
@@ -61,11 +61,10 @@ namespace CovidTrackerApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(patient);
-                await _context.SaveChangesAsync();
+                await _service.AddPatientAsync(patient);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueId", patient.VenueId);
+            ViewData["VenueId"] = new SelectList(_service.RetrieveVenues(), "VenueId", "VenueId", patient.VenueId);
             return View(patient);
         }
 
@@ -77,12 +76,12 @@ namespace CovidTrackerApp.Controllers
                 return NotFound();
             }
 
-            var patient = await _context.Patient.FindAsync(id);
+            var patient = await _service.RetrievePatientById(id);
             if (patient == null)
             {
                 return NotFound();
             }
-            ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueId", patient.VenueId);
+            ViewData["VenueId"] = new SelectList(_service.RetrieveVenues(), "VenueId", "VenueId", patient.VenueId);
             return View(patient);
         }
 
@@ -102,8 +101,7 @@ namespace CovidTrackerApp.Controllers
             {
                 try
                 {
-                    _context.Update(patient);
-                    await _context.SaveChangesAsync();
+                    await _service.UpdatePatientAsync(patient);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -118,7 +116,7 @@ namespace CovidTrackerApp.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueId", patient.VenueId);
+            ViewData["VenueId"] = new SelectList(_service.RetrieveVenues(), "VenueId", "VenueId", patient.VenueId);
             return View(patient);
         }
 
@@ -130,9 +128,7 @@ namespace CovidTrackerApp.Controllers
                 return NotFound();
             }
 
-            var patient = await _context.Patient
-                .Include(p => p.Venue)
-                .FirstOrDefaultAsync(m => m.PatientId == id);
+            var patient = await _service.RetrievePatientById(id);
             if (patient == null)
             {
                 return NotFound();
@@ -146,15 +142,14 @@ namespace CovidTrackerApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var patient = await _context.Patient.FindAsync(id);
-            _context.Patient.Remove(patient);
-            await _context.SaveChangesAsync();
+            var patient = await _service.RetrievePatientById(id);
+            await _service.RemovePatientAsync(patient);
             return RedirectToAction(nameof(Index));
         }
 
         private bool PatientExists(int id)
         {
-            return _context.Patient.Any(e => e.PatientId == id);
+            return _service.PatientExists(id);
         }
     }
 }
