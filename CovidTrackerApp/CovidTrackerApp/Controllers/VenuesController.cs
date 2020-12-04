@@ -7,22 +7,26 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CovidTrackerApp.Data;
 using CovidTrackerApp.Models;
+using CovidTrackerApp.Interfaces;
+using CovidTrackerApp.Services;
 
 namespace CovidTrackerApp.Controllers
 {
     public class VenuesController : Controller
     {
-        private readonly CovidTrackerAppContext _context;
 
-        public VenuesController(CovidTrackerAppContext context)
+        private readonly IVenueService _service;
+
+       
+        public VenuesController(IVenueService service)
         {
-            _context = context;
+            _service = service;
         }
 
         // GET: Venues
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Venue.ToListAsync());
+            return View(await _service.GetVenueAsync());
         }
 
         // GET: Venues/Details/5
@@ -33,8 +37,7 @@ namespace CovidTrackerApp.Controllers
                 return NotFound();
             }
 
-            var venue = await _context.Venue
-                .FirstOrDefaultAsync(m => m.VenueId == id);
+            var venue = await _service.FindVenueAsync(id);
             if (venue == null)
             {
                 return NotFound();
@@ -58,8 +61,8 @@ namespace CovidTrackerApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(venue);
-                await _context.SaveChangesAsync();
+                _service.AddVenue(venue);
+                await _service.SaveVenueAsync();
                 return RedirectToAction(nameof(Index));
             }
             return View(venue);
@@ -73,7 +76,7 @@ namespace CovidTrackerApp.Controllers
                 return NotFound();
             }
 
-            var venue = await _context.Venue.FindAsync(id);
+            var venue = await _service.FindVenueAsync(id);
             if (venue == null)
             {
                 return NotFound();
@@ -97,8 +100,8 @@ namespace CovidTrackerApp.Controllers
             {
                 try
                 {
-                    _context.Update(venue);
-                    await _context.SaveChangesAsync();
+                    _service.UpdateVenue(venue);
+                    await _service.SaveVenueAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -124,8 +127,7 @@ namespace CovidTrackerApp.Controllers
                 return NotFound();
             }
 
-            var venue = await _context.Venue
-                .FirstOrDefaultAsync(m => m.VenueId == id);
+            var venue = await _service.FindVenueAsync(id);
             if (venue == null)
             {
                 return NotFound();
@@ -139,15 +141,15 @@ namespace CovidTrackerApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var venue = await _context.Venue.FindAsync(id);
-            _context.Venue.Remove(venue);
-            await _context.SaveChangesAsync();
+            var venue = await _service.FindVenueAsync(id);
+            _service.DeleteVenue(venue);
+            await _service.SaveVenueAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool VenueExists(int id)
         {
-            return _context.Venue.Any(e => e.VenueId == id);
+            return _service.VenueExists(id);
         }
     }
 }

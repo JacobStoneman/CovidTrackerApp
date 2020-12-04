@@ -9,6 +9,10 @@ namespace CovidTrackerApp.Data
 {
     public class CovidTrackerAppContext : DbContext
     {
+        public CovidTrackerAppContext()
+        {
+        }
+
         public CovidTrackerAppContext (DbContextOptions<CovidTrackerAppContext> options)
             : base(options)
         {
