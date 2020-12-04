@@ -20,7 +20,7 @@ namespace CovidTrackerApp.Models
 		[Display(Name = "D.o.B")]
 		public DateTime DOB { get; set; }
 		[Required]
-		[RegularExpression(@"^[0-9]|[A-Z]|[a-z' ',]*$")]
+		[RegularExpression(@"^[0-9A-Za-z' ',]*$")]
 		public string Address { get; set; }
 		[Required]
 		[Display(Name = "Contact Number")]

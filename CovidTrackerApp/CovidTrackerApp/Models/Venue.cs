@@ -14,7 +14,7 @@ namespace CovidTrackerApp.Models
 		[RegularExpression(@"^[A-Z]+[a-zA-Z' ']*$")]
 		public string VenueName { get; set; }
 		[Required]
-		[RegularExpression(@"^[0-9]|[A-Z]|[a-z' ',]*$")]
+		[RegularExpression(@"^[0-9A-Za-z' ',]*$")]
 		public string Address { get; set; }
 		public int Capacity { get; set; }
 		public int NumOfPatients { get; set; }
