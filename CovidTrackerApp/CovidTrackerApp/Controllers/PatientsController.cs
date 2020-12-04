@@ -22,7 +22,8 @@ namespace CovidTrackerApp.Controllers
         // GET: Patients
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Patient.ToListAsync());
+            var covidTrackerAppContext = _context.Patient.Include(p => p.Venue);
+            return View(await covidTrackerAppContext.ToListAsync());
         }
 
         // GET: Patients/Details/5
@@ -34,6 +35,7 @@ namespace CovidTrackerApp.Controllers
             }
 
             var patient = await _context.Patient
+                .Include(p => p.Venue)
                 .FirstOrDefaultAsync(m => m.PatientId == id);
             if (patient == null)
             {
@@ -46,6 +48,7 @@ namespace CovidTrackerApp.Controllers
         // GET: Patients/Create
         public IActionResult Create()
         {
+            ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueId");
             return View();
         }
 
@@ -54,7 +57,7 @@ namespace CovidTrackerApp.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("PatientId,DateOfDiagnosis,NextOfKinName,NextOfKinNumber,CheckedIn,Deceased,PersonId,DOB,Address,Contact")] Patient patient)
+        public async Task<IActionResult> Create([Bind("PatientId,Name,DateOfDiagnosis,NextOfKinName,NextOfKinNumber,CheckedIn,Deceased,DOB,Address,ContactNumber,VenueId")] Patient patient)
         {
             if (ModelState.IsValid)
             {
@@ -62,6 +65,7 @@ namespace CovidTrackerApp.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueId", patient.VenueId);
             return View(patient);
         }
 
@@ -78,6 +82,7 @@ namespace CovidTrackerApp.Controllers
             {
                 return NotFound();
             }
+            ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueId", patient.VenueId);
             return View(patient);
         }
 
@@ -86,7 +91,7 @@ namespace CovidTrackerApp.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("PatientId,DateOfDiagnosis,NextOfKinName,NextOfKinNumber,CheckedIn,Deceased,PersonId,DOB,Address,Contact")] Patient patient)
+        public async Task<IActionResult> Edit(int id, [Bind("PatientId,Name,DateOfDiagnosis,NextOfKinName,NextOfKinNumber,CheckedIn,Deceased,DOB,Address,ContactNumber,VenueId")] Patient patient)
         {
             if (id != patient.PatientId)
             {
@@ -113,6 +118,7 @@ namespace CovidTrackerApp.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueId", patient.VenueId);
             return View(patient);
         }
 
@@ -125,6 +131,7 @@ namespace CovidTrackerApp.Controllers
             }
 
             var patient = await _context.Patient
+                .Include(p => p.Venue)
                 .FirstOrDefaultAsync(m => m.PatientId == id);
             if (patient == null)
             {

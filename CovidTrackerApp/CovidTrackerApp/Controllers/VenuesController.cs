@@ -54,7 +54,7 @@ namespace CovidTrackerApp.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("VenueId,Address,Capacity,NumOfPatients,WorkerNum")] Venue venue)
+        public async Task<IActionResult> Create([Bind("VenueId,VenueName,Address,Capacity,NumOfPatients,NumOfWorkers")] Venue venue)
         {
             if (ModelState.IsValid)
             {
@@ -86,7 +86,7 @@ namespace CovidTrackerApp.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("VenueId,Address,Capacity,NumOfPatients,WorkerNum")] Venue venue)
+        public async Task<IActionResult> Edit(int id, [Bind("VenueId,VenueName,Address,Capacity,NumOfPatients,NumOfWorkers")] Venue venue)
         {
             if (id != venue.VenueId)
             {

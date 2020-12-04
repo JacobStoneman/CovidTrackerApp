@@ -22,7 +22,8 @@ namespace CovidTrackerApp.Controllers
         // GET: CareWorkers
         public async Task<IActionResult> Index()
         {
-            return View(await _context.CareWorker.ToListAsync());
+            var covidTrackerAppContext = _context.CareWorker.Include(c => c.Venue);
+            return View(await covidTrackerAppContext.ToListAsync());
         }
 
         // GET: CareWorkers/Details/5
@@ -34,7 +35,8 @@ namespace CovidTrackerApp.Controllers
             }
 
             var careWorker = await _context.CareWorker
-                .FirstOrDefaultAsync(m => m.PersonId == id);
+                .Include(c => c.Venue)
+                .FirstOrDefaultAsync(m => m.CareWorkerId == id);
             if (careWorker == null)
             {
                 return NotFound();
@@ -46,6 +48,7 @@ namespace CovidTrackerApp.Controllers
         // GET: CareWorkers/Create
         public IActionResult Create()
         {
+            ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueId");
             return View();
         }
 
@@ -54,7 +57,7 @@ namespace CovidTrackerApp.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CareWorkerId,JobTitle,PersonId,DOB,Address,Contact")] CareWorker careWorker)
+        public async Task<IActionResult> Create([Bind("CareWorkerId,Name,JobTitle,DOB,Address,ContactNumber,VenueId")] CareWorker careWorker)
         {
             if (ModelState.IsValid)
             {
@@ -62,6 +65,7 @@ namespace CovidTrackerApp.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueId", careWorker.VenueId);
             return View(careWorker);
         }
 
@@ -78,6 +82,7 @@ namespace CovidTrackerApp.Controllers
             {
                 return NotFound();
             }
+            ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueId", careWorker.VenueId);
             return View(careWorker);
         }
 
@@ -86,9 +91,9 @@ namespace CovidTrackerApp.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("CareWorkerId,JobTitle,PersonId,DOB,Address,Contact")] CareWorker careWorker)
+        public async Task<IActionResult> Edit(int id, [Bind("CareWorkerId,Name,JobTitle,DOB,Address,ContactNumber,VenueId")] CareWorker careWorker)
         {
-            if (id != careWorker.PersonId)
+            if (id != careWorker.CareWorkerId)
             {
                 return NotFound();
             }
@@ -102,7 +107,7 @@ namespace CovidTrackerApp.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!CareWorkerExists(careWorker.PersonId))
+                    if (!CareWorkerExists(careWorker.CareWorkerId))
                     {
                         return NotFound();
                     }
@@ -113,6 +118,7 @@ namespace CovidTrackerApp.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueId", careWorker.VenueId);
             return View(careWorker);
         }
 
@@ -125,7 +131,8 @@ namespace CovidTrackerApp.Controllers
             }
 
             var careWorker = await _context.CareWorker
-                .FirstOrDefaultAsync(m => m.PersonId == id);
+                .Include(c => c.Venue)
+                .FirstOrDefaultAsync(m => m.CareWorkerId == id);
             if (careWorker == null)
             {
                 return NotFound();
@@ -147,7 +154,7 @@ namespace CovidTrackerApp.Controllers
 
         private bool CareWorkerExists(int id)
         {
-            return _context.CareWorker.Any(e => e.PersonId == id);
+            return _context.CareWorker.Any(e => e.CareWorkerId == id);
         }
     }
 }
